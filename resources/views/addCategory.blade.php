@@ -75,7 +75,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand mr-auto" href="#">BNCC SHOP</a>
-            <div class="mx-auto"> <!-- Centered Menu Items -->
+            <div class="mx-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link {{ Request::route()->getName() === 'homepage' ? 'active' : '' }}" href="{{ route('homepage') }}">Home</a>

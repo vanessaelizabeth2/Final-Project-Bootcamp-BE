@@ -50,5 +50,9 @@ Route::get('/view-cart', [CartController::class, 'viewCart'])->name('viewCart')-
 Route::match(['get', 'post'], '/add-to-cart/{productId}', [App\Http\Controllers\CartController::class, 'addToCart'])->name('addToCart')->middleware('auth');
 Route::patch('/update-quantity/{id}', [CartController::class, 'updateQuantity'])->name('updateQuantity')->middleware('auth');
 
-// Route::get('/create/invoice', [InvoiceController::class, 'createInvoice'])->name('createInvoice');
-Route::get('/invoice/create', 'InvoiceController@create')->name('createInvoice');
+Route::get('/invoice/create', [InvoiceController::class, 'createInvoice'])->name('createInvoice');
+Route::post('/store/invoice', [ InvoiceController::class, 'storeInvoice'])->name('storeInvoice');
+Route::get('/view/receipt/{invoiceId}', 'InvoiceController@viewReceipt')->name('viewReceipt');
+
+
+

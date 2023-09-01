@@ -4,37 +4,43 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Invoice;
-use App\Models\Category; // Import the Category model
-use App\Models\Product; // Import the Product model
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\Cart;
 
 class InvoiceController extends Controller
 {
     // Display the invoice creation form
-    public function create()
-    {
-        // You can pass categories and products to your view to populate dropdowns, for example:
+    public function createInvoice(){
         $categories = Category::all('*');
         $products = Product::all('*');
 
-        return view('createInvoice', compact('categories', 'products'));
+        // Retrieve the user's cart data (modify this query based on your cart structure)
+        $userCart = Cart::where('user_id', auth()->user()->id)->get();
+
+        // Assuming you have the category name in your cart data
+        $categoryName = $userCart->first()->product->category;
+
+        return view('createInvoice', compact('categories', 'products', 'userCart', 'categoryName'));
     }
 
-    public function store(Request $request)
-    {
+
+
+
+    public function storeInvoice(Request $request){
         $validatedData = $request->validate([
             'address' => 'required|string|min:10|max:100',
-            'postalCode' => 'required|integer|min:10000|max:99999', // Updated min and max values for a 5-digit postal code
-            'category' => 'required|integer|exists:categories,id',
+            'postalCode' => 'required|integer|min:10000|max:99999',
+            'category' => 'required|string',
             'productName' => 'required|string|exists:products,productName',
             'price' => 'required|integer',
             'quantity' => 'required|integer',
             'image' => 'required|file'
         ]);
 
-        // Create and save a new invoice record using the Invoice model
         $invoice = new Invoice;
-        $invoice->category_id = $validatedData['category']; // Update this to match your database column name
-        $invoice->product_name = $validatedData['productName']; // Update this to match your database column name
+        $invoice->category = $validatedData['category'];
+        $invoice->product_name = $validatedData['productName'];
         $invoice->price = $validatedData['price'];
         $invoice->quantity = $validatedData['quantity'];
         $invoice->address = $validatedData['address'];
@@ -42,10 +48,20 @@ class InvoiceController extends Controller
 
         $invoice->save();
 
-        $invoiceNumber = $invoice->id;
+        $invoiceId = $invoice->id; 
 
-        return redirect()->route('/');
-        // return redirect()->route('thankyou')->with('invoiceNumber', $invoiceNumber);
+        return redirect()->route('viewReceipt', ['invoiceId' => $invoiceId]);
+    }
+
+    public function viewReceipt($invoiceId)
+    {
+        $invoice = Invoice::find($invoiceId);
+
+        if (!$invoice) {
+            return redirect()->route('homepage')->with('error', 'Invoice not found.');
+        }
+
+        return view('receipt', compact('invoice'));
     }
 
 }

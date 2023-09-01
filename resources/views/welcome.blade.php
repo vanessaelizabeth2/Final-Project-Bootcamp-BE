@@ -58,7 +58,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand mr-auto" href="#">BNCC SHOP</a>
-            <div class="mx-auto"> <!-- Centered Menu Items -->
+            <div class="mx-auto">
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link {{ Request::route()->getName() === 'homepage' ? 'active' : '' }}" href="{{ route('homepage') }}">Home</a>
@@ -103,9 +103,6 @@
                 <p class="card-text"><strong>Category: </strong>{{ $product->category->category }}</p>
                 <p class="card-text"><strong>Price: Rp </strong> {{ $product->price }}</p>
                 <p class="card-text"><strong>Quantity: </strong> {{ $product->quantity }}</p>
-                {{-- <a href="#" class="btn btn-primary">Buy Now</a> --}}
-                {{-- <a href="#" class="btn btn-success add-to-cart" data-product-id="{{ $product->id }}">Add to Cart</a> --}}
-                {{-- <a href="{{route ('productDetail', ['id'=>$product->id])}}" class="btn btn-primary">See More Detail</a>--}}
                 <form action="{{ route('addToCart', ['productId' => $product->id]) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-success">Add to Cart</button>
