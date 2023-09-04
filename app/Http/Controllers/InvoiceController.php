@@ -10,9 +10,6 @@ use App\Models\Cart;
 use App\Models\User;
 use App\Models\lineItems;
 
-
-
-
 class InvoiceController extends Controller
 {
     public function createInvoice(){
@@ -48,31 +45,38 @@ class InvoiceController extends Controller
             return redirect()->route('viewCart')->with('error', 'Your cart is empty.');
         }
 
-        $lineItems = [];
         $totalPrice = 0;
         $category = '';
         $itemNames = [];
+        $itemPrices = [];
         $quantities = [];
+        
+        $lineItems = [];
 
         foreach ($userCart as $cartItem) {
             $product = $cartItem->product;
             $itemPrice = $product->price * $cartItem->count;
             $quantity = $cartItem->count;
-
             $category = $product->category->category;
-
-            $itemNames[] = $product->productName;
-            $quantities[] = $quantity;
-
+        
+            if ($product->quantity < $quantity) {
+                return redirect()->route('viewCart')->with('error', 'Insufficient stock for ' . $product->productName . '.');
+            }
+        
+            $product->decrement('quantity', $quantity);
+        
+            $totalItemPrice = $quantity * $itemPrice;
+        
             $lineItems[] = [
                 'product_id' => $product->id,
                 'product_name' => $product->productName,
                 'category' => $category,
                 'quantity' => $quantity,
                 'price' => $itemPrice,
+                'total_price' => $totalItemPrice,
             ];
-
-            $totalPrice += $itemPrice;
+        
+            $totalPrice += $totalItemPrice;
         }
 
         $lastInvoice = Invoice::orderBy('id', 'desc')->first();
@@ -85,6 +89,7 @@ class InvoiceController extends Controller
         $invoice->delivery_address = $validatedData['address'];
         $invoice->postal_code = $validatedData['postalCode'];
         $invoice->total_price = $totalPrice;
+        
 
         $invoice->quantity = $lineItems;
 
@@ -93,14 +98,14 @@ class InvoiceController extends Controller
         }
 
         $invoice->item_name = implode(', ', $itemNames);
-
         $invoice->quantity = implode(', ', $quantities);
+        $invoice->price = implode(', ', $itemPrices);        
 
         if ($invoice->save()) {
             $invoice->lineItems()->createMany($lineItems);
-
+        
             Cart::where('user_id', auth()->user()->id)->delete();
-
+        
             return view('receipt', ['invoice' => $invoice]);
         } else {
             return redirect()->route('viewCart')->with('error', 'Failed to create the invoice. Please try again.');

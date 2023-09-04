@@ -18,7 +18,6 @@
     </style>
 </head>
 <body>
-    
     <div class="container mt-4">
         <div class="card">
             <div class="card-header">
@@ -91,9 +90,6 @@
                             </div>
                         </div>
                     </div>
-                    
-                    
-                             
                 </form>
             </div>
         </div>

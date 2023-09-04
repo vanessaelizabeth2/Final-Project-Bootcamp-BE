@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('category')->default('Uncategorized');
             $table->string('item_name');
             $table->string('quantity');
-            $table->decimal('price', 10, 2)->default(0.00);
+            $table->text('price');
             $table->decimal('total_price', 10, 2)->default(0.00);
             $table->string('delivery_address', 100);
             $table->string('postal_code', 5);

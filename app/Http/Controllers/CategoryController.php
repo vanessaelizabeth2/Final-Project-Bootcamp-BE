@@ -25,7 +25,7 @@ class CategoryController extends Controller
             'category' => $request -> category
         ]);
 
-        return redirect (route('addCategory'));
+        return redirect (route('addProduct'));
     }
     
 }

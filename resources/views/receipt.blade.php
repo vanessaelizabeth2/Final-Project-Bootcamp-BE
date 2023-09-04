@@ -63,18 +63,21 @@
                 <tr>
                     <td>{{ $item->product_name }}</td>
                     <td>{{ $item->quantity }}</td>
-                    <td>Rp {{ $item->price }}</td>
-                    <td>Rp {{ $item->quantity * $item->price }}</td>
+                    <td>Rp {{ number_format($item->price) }}</td>
+                    <td>Rp {{ number_format($item->quantity * $item->price) }}</td>
                 </tr>
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
                     <th colspan="3" class="text-right">Total Price:</th>
-                    <td>Rp {{ $invoice->total_price }}</td>
+                    <td>Rp {{ number_format($invoice->total_price) }}</td>
                 </tr>
             </tfoot>
         </table>
+    </div>
+    <div class="d-flex justify-content-center mt-4">
+        <a href="{{ route('homepage') }}" class="btn btn-danger">Close</a>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 </body>
