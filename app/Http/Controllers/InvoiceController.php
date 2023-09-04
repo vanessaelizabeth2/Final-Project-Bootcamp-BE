@@ -66,6 +66,10 @@ class InvoiceController extends Controller
             $product->decrement('quantity', $quantity);
         
             $totalItemPrice = $quantity * $itemPrice;
+
+            $itemNames[] = $product->productName;
+            $itemPrices[] = $itemPrice;
+            $quantities[] = $quantity;
         
             $lineItems[] = [
                 'product_id' => $product->id,
