@@ -8,6 +8,8 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Cart;
 use App\Models\User;
+use App\Models\lineItems;
+
 
 
 
@@ -33,47 +35,43 @@ class InvoiceController extends Controller
     
         return view('createInvoice', compact('categories', 'products', 'userCart', 'categoryName', 'user', 'totalPrice', 'totalItems'));
     }
-    
 
     public function storeInvoice(Request $request){
         $validatedData = $request->validate([
             'address' => 'required|string|min:10|max:100',
             'postalCode' => 'required|integer|min:10000|max:99999',
         ]);
-    
+
         $userCart = Cart::where('user_id', auth()->user()->id)->get();
-    
+
         if ($userCart->isEmpty()) {
             return redirect()->route('viewCart')->with('error', 'Your cart is empty.');
         }
-        
-        $categoryNames = [];
 
-        foreach ($userCart as $cartItem) {
-            $categoryName = $cartItem->product->category->category;
-
-            $categoryNames[] = $categoryName;
-        }
-
-        $categoryString = implode(', ', $categoryNames);
-
-        $quantity = 0;
+        $lineItems = [];
         $totalPrice = 0;
-    
         $category = '';
-        $item_name = '';
-    
-        $firstCartItem = $userCart->first();
-        if ($firstCartItem) {
-            $category = $firstCartItem->product->category;
-            $item_name = $firstCartItem->product->productName;
-        }
-    
+        $itemNames = [];
+        $quantities = [];
+
         foreach ($userCart as $cartItem) {
             $product = $cartItem->product;
-            $quantity += $cartItem->count;
-            
             $itemPrice = $product->price * $cartItem->count;
+            $quantity = $cartItem->count;
+
+            $category = $product->category->category;
+
+            $itemNames[] = $product->productName;
+            $quantities[] = $quantity;
+
+            $lineItems[] = [
+                'product_id' => $product->id,
+                'product_name' => $product->productName,
+                'category' => $category,
+                'quantity' => $quantity,
+                'price' => $itemPrice,
+            ];
+
             $totalPrice += $itemPrice;
         }
 
@@ -82,30 +80,31 @@ class InvoiceController extends Controller
         $yearLastTwoDigits = now()->format('y');
         $invoiceNumber = $yearLastTwoDigits . now()->format('md') . str_pad($lastInvoiceId, 5, '0', STR_PAD_LEFT);
 
-    
-        $invoice = new Invoice;
+        $invoice = new Invoice();
         $invoice->invoice_number = $invoiceNumber;
-        $invoice->category = $category;
-        $invoice->item_name = $item_name;
-        $invoice->quantity = $quantity;
-        $invoice->total_price = $totalPrice;
         $invoice->delivery_address = $validatedData['address'];
         $invoice->postal_code = $validatedData['postalCode'];
-        $invoice->price = $itemPrice;
+        $invoice->total_price = $totalPrice;
+
+        $invoice->quantity = $lineItems;
+
+        if (!empty($category)) {
+            $invoice->category = $category;
+        }
+
+        $invoice->item_name = implode(', ', $itemNames);
+
+        $invoice->quantity = implode(', ', $quantities);
 
         if ($invoice->save()) {
-            foreach ($userCart as $cartItem) {
-                $product = $cartItem->product;
-                $product->quantity -= $cartItem->count;
-                $product->save();
-                
-                $cartItem->delete();
-            }
+            $invoice->lineItems()->createMany($lineItems);
+
+            Cart::where('user_id', auth()->user()->id)->delete();
+
             return view('receipt', ['invoice' => $invoice]);
         } else {
             return redirect()->route('viewCart')->with('error', 'Failed to create the invoice. Please try again.');
         }
-
     }
     
     public function searchInvoice(Request $request)
@@ -121,7 +120,6 @@ class InvoiceController extends Controller
         return view('receipt', compact('invoice'));
     }
     
-
     public function viewReceipt($invoiceId){
         $invoice = Invoice::find($invoiceId);
 
@@ -135,6 +133,4 @@ class InvoiceController extends Controller
 
         return view('receipt', compact('invoice', 'user'));
     }
-
-    
 }

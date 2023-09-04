@@ -38,7 +38,6 @@
                         <dd class="col-sm-8">{{ $invoice->invoice_number }}</dd>
                         <dt class="col-sm-4"><strong>Date:</strong></dt>
                         <dd class="col-sm-8">{{ $invoice->created_at->format('Y-m-d H:i:s') }}</dd>
-                        
                     </dl>
                 </div>
         
@@ -60,17 +59,19 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach ($invoice->lineItems as $item)
                 <tr>
-                    <td>{{ $invoice->item_name }}</td>
-                    <td>{{ $invoice->quantity }}</td>
-                    <td>Rp {{ $invoice->price }}</td>
-                    <td>Rp {{ $invoice->quantity * $invoice->price }}</td>
+                    <td>{{ $item->product_name }}</td>
+                    <td>{{ $item->quantity }}</td>
+                    <td>Rp {{ $item->price }}</td>
+                    <td>Rp {{ $item->quantity * $item->price }}</td>
                 </tr>
+                @endforeach
             </tbody>
             <tfoot>
                 <tr>
                     <th colspan="3" class="text-right">Total Price:</th>
-                    <td>Rp {{ $invoice->quantity * $invoice->price }}</td>
+                    <td>Rp {{ $invoice->total_price }}</td>
                 </tr>
             </tfoot>
         </table>

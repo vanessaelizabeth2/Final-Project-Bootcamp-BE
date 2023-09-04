@@ -77,8 +77,6 @@
                     <div class="mt-2">
                         <p class="mb-0" style="font-size: 20px;"><strong>Total Orders: </strong> {{ $totalItems }} Products</p>
                     </div>
-{{--                     
-                    <hr> --}}
 
                     <div class="mt-2">
                         <hr>

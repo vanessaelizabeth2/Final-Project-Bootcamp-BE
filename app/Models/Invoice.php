@@ -34,5 +34,8 @@ class Invoice extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-
+    public function lineItems(){
+        return $this->hasMany(LineItems::class);
+    }
+    
 }

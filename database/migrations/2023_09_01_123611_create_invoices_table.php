@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_number')->unique();
-            $table->string('category');
+            $table->string('category')->default('Uncategorized');
             $table->string('item_name');
-            $table->integer('quantity');
+            $table->string('quantity');
             $table->decimal('price', 10, 2)->default(0.00);
             $table->decimal('total_price', 10, 2)->default(0.00);
             $table->string('delivery_address', 100);
