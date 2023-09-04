@@ -4,21 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <title>Search for Your Invoice</title>
     <style>
-        .custom-header {
-            background-color: #D6EBF5;
-            color: black;
-            padding: 10px;
-            border-bottom: none;
-        }
-        .custom-card {
-            width: 400px;
-            border: 1px solid #BFBFBF;
-            border-radius: 10px;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
         .navbar {
             background-color: #f8f9fa;
             transition: background-color 0.3s ease;
@@ -59,14 +47,11 @@
             transition: width 0.3s ease, color 0.3s ease;
         }
 
-
         .navbar-brand:hover::before {
             width: 100%;
             color: #3289DF;
         }
-
     </style>
-    <title>Add Category</title>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -82,7 +67,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ Request::route()->getName() === 'searchInvoice' ? 'active' : '' }}" href="{{ route('searchInvoice') }}">Search Invoice</a>
-                    </li>     
+                    </li>                    
                     @can('is_admin')
                     <li class="nav-item">
                         <a class="nav-link {{ Request::route()->getName() === 'addCategory' ? 'active' : '' }}" href="{{ route('addCategory') }}">Add Category</a>
@@ -106,34 +91,35 @@
                 <a href="{{ route('login') }}" class="btn btn-success">Login</a>
                 @endauth
                 <div class="mx-1"></div>
-                <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
+                <a href="{{ route('register') }}" class="btn btn-secondary">Register</a>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-5 d-flex justify-content-center">
-        <div class="col-md-6">
-            <div class="card custom-card">
-                <div class="card-header custom-header">
-                    <h5 class="m-0">Add New Category</h5>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ route('storeCategory') }}" class="m-3">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="category" class="form-label">Category</label>
-                            <input type="text" class="form-control" id="category" name="category" placeholder="Enter a new category...">
-                            @error('category')
-                                <div class="alert alert-danger">{{$message}}</div>
-                            @enderror
+    <div class="container-fluid d-flex justify-content-center align-items-center vh-100">
+        <div class="card col-md-6">
+            <div class="card-body">
+                <h1 class="card-title mb-4">Search for Your Invoice</h1>
+    
+                @if(request()->isMethod('post'))
+                    @if(isset($error))
+                    <div class="alert alert-danger">
+                        {{ $error }}
+                    </div>
+                    @endif
+                @endif
+                <form method="POST" action="{{ route('searchInvoice') }}">
+                    @csrf
+                    <div class="form-group">
+                        <div class="d-flex justify-content-between">
+                            <input type="text" id="invoice_number" name="invoice_number" class="form-control mr-2" required placeholder="Enter invoice number here..." style="margin-right: 10px;">
+                            <button type="submit" class="btn btn-primary">Search</button>
                         </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 </body>
 </html>

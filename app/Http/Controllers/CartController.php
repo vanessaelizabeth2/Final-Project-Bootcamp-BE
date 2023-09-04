@@ -70,7 +70,6 @@ class CartController extends Controller
             return redirect()->route('viewCart')->with('error', 'Cart item not found.');
         }
 
-        // Validate the form input
         $request->validate([
             'count' => 'required|integer|min:1',
         ]);
@@ -81,11 +80,22 @@ class CartController extends Controller
             return redirect()->route('viewCart')->with('error', 'Invalid quantity.');
         }
 
-        // Update the quantity and total price
         $cartItem->count = $request->count;
         $cartItem->total_price = $cartItem->count * $cartItem->price;
         $cartItem->save();
 
         return redirect()->route('viewCart')->with('success', 'Quantity updated successfully.');
     }
+
+    public function removeItem($id){
+        $cartItem = Cart::find($id);
+
+        if ($cartItem) {
+            $cartItem->delete();
+            return redirect()->route('viewCart')->with('success', 'Item removed from the cart.');
+        }
+
+        return redirect()->route('viewCart')->with('error', 'Cart item not found.');
+    }
+
 }

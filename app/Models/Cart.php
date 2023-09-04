@@ -12,7 +12,7 @@ class Cart extends Model
     
     protected $fillable = [
         'product_id',
-        'user_id', // Include 'user_id' in the $fillable array
+        'user_id',
         'count',
         'price',
         'total_price'
@@ -21,6 +21,11 @@ class Cart extends Model
     public function product() {
         return $this->belongsTo(Product::class, 'product_id');
     }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 
 
 }

@@ -25,7 +25,6 @@ use App\Models\Product;
 // });
 
 Route::get('/', [ProductController::class, 'allProduct'])->name('homepage');
-// ->middleware('auth')
 
 Route::get('/add/product', [ ProductController::class, 'addProduct'])->name('addProduct')->middleware('is_admin');
 Route::post('/store/product', [ ProductController::class, 'storeProduct'])->name('storeProduct')->middleware('is_admin');
@@ -46,13 +45,14 @@ Route::get('/login', [AuthController::class, 'login'])->name('login')->middlewar
 Route::post('/login', [AuthController::class, 'authenticate'])->name('authenticate')->middleware('guest');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-Route::get('/view-cart', [CartController::class, 'viewCart'])->name('viewCart')->middleware('auth');
-Route::match(['get', 'post'], '/add-to-cart/{productId}', [App\Http\Controllers\CartController::class, 'addToCart'])->name('addToCart')->middleware('auth');
+Route::get('/view/cart', [CartController::class, 'viewCart'])->name('viewCart')->middleware('auth');
+Route::match(['get', 'post'], '/add-to-cart/{productId}', [CartController::class, 'addToCart'])->name('addToCart')->middleware('auth');
 Route::patch('/update-quantity/{id}', [CartController::class, 'updateQuantity'])->name('updateQuantity')->middleware('auth');
+Route::get('/removeCartItem/{id}', [CartController::class, 'removeItem'])->name('removeItem');
 
 Route::get('/invoice/create', [InvoiceController::class, 'createInvoice'])->name('createInvoice');
 Route::post('/store/invoice', [ InvoiceController::class, 'storeInvoice'])->name('storeInvoice');
-Route::get('/view/receipt/{invoiceId}', 'InvoiceController@viewReceipt')->name('viewReceipt');
 
-
+Route::match(['get', 'post'], '/search/invoice', [InvoiceController::class, 'searchInvoice'])->name('searchInvoice');
+// Route::get('/view/receipt/{invoiceId}', [InvoiceController::class, 'viewReceipt'])->name('viewReceipt');
 

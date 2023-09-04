@@ -67,6 +67,9 @@
                     <li class="nav-item">
                         <a class="nav-link {{ Request::route()->getName() === 'cart' ? 'active' : '' }}" href="{{ route('viewCart') }}">Your Cart</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::route()->getName() === 'searchInvoice' ? 'active' : '' }}" href="{{ route('searchInvoice') }}">Search Invoice</a>
+                    </li>     
                     @can('is_admin')
                     <li class="nav-item">
                         <a class="nav-link {{ Request::route()->getName() === 'addCategory' ? 'active' : '' }}" href="{{ route('addCategory') }}">Add Category</a>
@@ -84,13 +87,13 @@
                 @auth
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button class="btn btn-outline-danger" type="submit">Logout</button>
+                    <button class="btn btn-danger" type="submit">Logout</button>
                 </form>
                 @else
-                <a href="{{ route('login') }}" class="btn btn-outline-success">Login</a>
+                <a href="{{ route('login') }}" class="btn btn-success">Login</a>
                 @endauth
                 <div class="mx-1"></div>
-                <a href="{{ route('register') }}" class="btn btn-outline-secondary">Register</a>
+                <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
             </div>
         </div>
     </nav>

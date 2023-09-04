@@ -51,7 +51,44 @@
             width: 100%;
             color: #3289DF;
         }
-        
+
+        .details{
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .start-shopping{
+            border-width: 1px;
+            border-color: blue;"
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-control .btn {
+            margin: 0 5px;
+        }
+
+        .quantity-control input {
+            width: 15px !important;
+            text-align: center;
+        }
+
+
+        .quantity-label {
+            margin-right: 10px;
+        }
+
+        .custom-quantity-input {
+            width: 30px !important;
+            height: 30px;
+            padding: 0;
+            text-align: center;
+            margin-right: 5px;
+        }
 
     </style>
 </head>
@@ -65,7 +102,10 @@
                         <a class="nav-link {{ Request::route()->getName() === 'homepage' ? 'active' : '' }}" href="{{ route('homepage') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ Request::route()->getName() === 'cart' ? 'active' : '' }}" href="{{ route('viewCart') }}">Your Cart</a>
+                        <a class="nav-link {{ Request::route()->getName() === 'viewCart' ? 'active' : '' }}" href="{{ route('viewCart') }}">Your Cart</a>
+                    </li>                    
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::route()->getName() === 'searchInvoice' ? 'active' : '' }}" href="{{ route('searchInvoice') }}">Search Invoice</a>
                     </li>
                     @can('is_admin')
                     <li class="nav-item">
@@ -84,24 +124,32 @@
                 @auth
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button class="btn btn-outline-danger" type="submit">Logout</button>
+                    <button class="btn btn-danger" type="submit">Logout</button>
                 </form>
                 @else
-                <a href="{{ route('login') }}" class="btn btn-outline-success">Login</a>
+                <a href="{{ route('login') }}" class="btn btn-success">Login</a>
                 @endauth
                 <div class="mx-1"></div>
-                <a href="{{ route('register') }}" class="btn btn-outline-secondary">Register</a>
+                <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
             </div>
         </div>
-    </nav>
+    </nav>   
 
-    <div class="container">
-        <h1>Your Cart</h1>
+    <div class="container mt-3">
+        <h1 class="d-flex justify-content-between align-items-center">
+            Your Cart
+            <a href="{{ route('searchInvoice') }}" class="btn btn-primary">Search Invoice</a>
+        </h1>        
         @if ($cartItems->isEmpty())
             <div class="card">
                 <div class="card-body">
                     No products in your cart yet.
                 </div>
+            </div>
+            <div class="mt-2">
+                <a href="{{ route('homepage') }}">
+                    <button class="start-shopping btn btn-outline-primary" >Start Shopping</button>
+                </a>
             </div>
         @else
             <table class="table">
@@ -117,30 +165,76 @@
                     @foreach ($cartItems as $cartItem)
                         <tr>
                             <td>{{ optional($cartItem->product)->productName }}</td>
-                                <td>
-                                    <form action="{{ route('updateQuantity', $cartItem->id) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        <div class="input-group">
-                                            <button type="button" class="btn btn-sm btn-primary minus-quantity">-</button>
-                                            <input type="number" name="count" value="{{ $cartItem->count }}" min="1" class="form-control text-center">
-                                            <button type="button" class="btn btn-sm btn-primary plus-quantity">+</button>
-                                        </div>
-                                    </form>
-                                </td>                            
-                                <td>{{ $cartItem->price }}</td>
+                            <td>
+                                <form action="{{ route('updateQuantity', $cartItem->id) }}" method="POST" class="update-quantity-form">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="input-group quantity-control">
+                                        <button type="button" class="btn btn-sm btn-danger minus-quantity" data-action="decrement" data-id="{{ $cartItem->id }}">-</button>
+                                        <input type="number" name="count" value="{{ $cartItem->count }}" min="1" class="form-control text-center custom-quantity-input">
+                                        <button type="button" class="btn btn-sm btn-success plus-quantity" data-action="increment" data-id="{{ $cartItem->id }}">+</button>
+                                    </div>
+                                    <div class="confirmation-message">
+                                        <p>Remove item from the cart?</p>
+                                        <button type="button" class="btn btn-sm btn-secondary cancel-remove">No</button>
+                                        <button type="button" class="btn btn-sm btn-danger confirm-remove" data-id="{{ $cartItem->id }}">Yes</button>
+                                    </div>
+                                </form>
+                            </td>                                            
+                            <td>{{ $cartItem->price }}</td>
                             <td>{{ $cartItem->total_price }}</td>
                         </tr>
                     @endforeach
+
                 </tbody>
             </table>
             <p>Total Price: {{ $totalPrice }}</p>
         @endif
         @if (!$cartItems->isEmpty())
+            
             <a href="{{ route('createInvoice') }}" class="btn btn-primary">Create Invoice</a>
+    
         @endif
     </div>
-    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const updateQuantityForms = document.querySelectorAll('.update-quantity-form');
+
+        updateQuantityForms.forEach(form => {
+            const minusButton = form.querySelector('.minus-quantity');
+            const plusButton = form.querySelector('.plus-quantity');
+            const countInput = form.querySelector('input[name="count"]');
+            const cartItemId = minusButton.getAttribute('data-id');
+            const confirmationMessage = form.querySelector('.confirmation-message');
+            const confirmRemoveButton = form.querySelector('.confirm-remove');
+            const cancelRemoveButton = form.querySelector('.cancel-remove');
+
+            confirmationMessage.style.display = 'none';
+
+            minusButton.addEventListener('click', () => {
+                if (parseInt(countInput.value) === 1) {
+                    confirmationMessage.style.display = 'block';
+                } else {
+                    countInput.value = parseInt(countInput.value) - 1;
+                    form.submit();
+                }
+            });
+
+            plusButton.addEventListener('click', () => {
+                countInput.value = parseInt(countInput.value) + 1;
+                form.submit();
+            });
+
+            confirmRemoveButton.addEventListener('click', () => {
+                window.location.href = `/removeCartItem/${cartItemId}`;
+            });
+
+            cancelRemoveButton.addEventListener('click', () => {
+                confirmationMessage.style.display = 'none';
+            });
+        });
+    });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 </body>
 </html>

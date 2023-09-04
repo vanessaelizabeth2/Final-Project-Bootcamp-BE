@@ -34,7 +34,7 @@ class ProductController extends Controller
             'productName' => 'required|string|unique:products,productName,NULL,id|min:5|max:80',
             'price' => 'required|integer',
             'quantity' => 'required|integer',
-            'image' => 'required|file'
+            'image' => 'required|mimes:jpeg,png'
         ]);
 
         $extension = $request -> file ('image')->getClientOriginalExtension();
@@ -71,28 +71,30 @@ class ProductController extends Controller
 
     public function updateProduct($id, Request $request){
         $request->validate([
-            'productName' => 'required|string|unique:products,productName,NULL,id|min:5|max:80',
+            'productName' => 'required|string|unique:products,productName,' . $id . ',id|min:5|max:80',
             'price' => 'required|integer',
             'quantity' => 'required|integer',
-            'image' => 'required|file'
+            'image' => 'nullable|image|mimes:jpeg,png'
         ]);
-
-        $products = Product::findOrFail($id);
-
-        $extension = $request->file('image')->getClientOriginalExtension();
-        $filename = $request->productName . '.' . $extension;
-        $request->file('image')->storeAs('/public/products/', $filename);
     
-        $products->update([
+        $product = Product::findOrFail($id);
+    
+        if ($request->hasFile('image')) {
+            $extension = $request->file('image')->getClientOriginalExtension();
+            $filename = $request->productName . '.' . $extension;
+            $request->file('image')->storeAs('public/products/', $filename);
+            $product->image = $filename;
+        }
+    
+        $product->update([
             'categoryId' => $request->category,
             'productName' => $request->productName,
             'price' => $request->price,
             'quantity' => $request->quantity,
-            'image' => $filename,
         ]);
     
         return redirect(route('homepage'));
-    }
+    }    
 
     public function deleteProduct($id){
         Product::destroy($id);
@@ -105,9 +107,5 @@ class ProductController extends Controller
 
         return view ('confirmDelete')->with('product', $products);
     }
-
-    
-
-   
 
 }

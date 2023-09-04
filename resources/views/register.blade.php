@@ -70,7 +70,6 @@
                 <div class="mb-3">
                     <label for="phoneNumber" class="form-label">Phone Number</label>
                     <div class="input-group">
-                        {{-- <span class="input-group-text">08</span> --}}
                         <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="phone number must start with 08">
                     </div>
                     @error('phoneNumber')

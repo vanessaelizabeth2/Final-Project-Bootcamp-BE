@@ -20,7 +20,19 @@ class Invoice extends Model
         'category',
         'item_name',
         'quantity',
+        'price',
+        'total_price',
         'delivery_address',
         'postal_code',
     ];
+    
+    protected $casts = [
+        'category' => 'string',
+    ];
+    
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+
 }

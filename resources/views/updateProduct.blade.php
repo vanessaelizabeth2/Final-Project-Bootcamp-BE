@@ -43,7 +43,16 @@
                     <li class="nav-item">
                         <a class="nav-link {{ Request::route()->getName() === 'homepage' ? 'active' : '' }}" href="{{ route('homepage') }}">Home</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::route()->getName() === 'cart' ? 'active' : '' }}" href="{{ route('viewCart') }}">Your Cart</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::route()->getName() === 'searchInvoice' ? 'active' : '' }}" href="{{ route('searchInvoice') }}">Search Invoice</a>
+                    </li>                    
                     @can('is_admin')
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::route()->getName() === 'addCategory' ? 'active' : '' }}" href="{{ route('addCategory') }}">Add Category</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link {{ Request::route()->getName() === 'addProduct' ? 'active' : '' }}" href="{{ route('addProduct') }}">Add Product</a>
                     </li>
@@ -57,11 +66,13 @@
                 @auth
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button class="btn btn-outline-danger" type="submit">Logout</button>
+                    <button class="btn btn-danger" type="submit">Logout</button>
                 </form>
                 @else
-                <a href="{{ route('login') }}" class="btn btn-outline-success">Login</a>
+                <a href="{{ route('login') }}" class="btn btn-success">Login</a>
                 @endauth
+                <div class="mx-1"></div>
+                <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
             </div>
         </div>
     </nav>
@@ -109,11 +120,20 @@
         </div>
         <div class="mb-3">
             <label for="product-img" class="form-label">Product's Image</label>
-            <input type="file" class="form-control" id="product-img" name="image" value="{{$product->image}}">
+        
+            @if ($product->image)
+                <img src="{{ asset('storage/products/' . $product->image) }}" alt="Current Image" class="img-thumbnail" style="max-width: 200px;">
+                <p>Current Image: {{ $product->image }}</p>
+            @else
+                <p>No image available for this product.</p>
+            @endif
+        
+            <input type="file" class="form-control" id="product-img" name="image">
             @error('image')
-                <div class="alert alert-danger">{{$message}}</div>
+                <div class="alert alert-danger">{{ $message }}</div>
             @enderror
-        </div>        
+        </div>
+             
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 
